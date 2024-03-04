@@ -1561,43 +1561,305 @@ partial interface RTCRtpTransceiver {
       </p>
     </section>
   </section>
-  <section class="informative">
-    <h2>Event summary</h2>
-    <p>
-      The following events fire on {{RTCIceTransport}} objects:</p>
-    <table class="simple">
-      <thead>
-        <tr>
-          <th>Event name</th>
-          <th>Interface</th>
-          <th>Fired when...</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <th scope=row><dfn data-dfn-for="RTCIceTransport" data-dfn-type=event>icecandidatepairadd</dfn></th>
-          <td>{{RTCIceCandidatePairEvent}}</td>
-          <td>
-            The [= ICE agent =] has formed a candidate pair and is making it available to the script.
-          </td>
-        </tr>
-        <tr>
-          <th scope=row><dfn data-dfn-for="RTCIceTransport" data-dfn-type=event>icecandidatepairremove</dfn></th>
-          <td>{{RTCIceCandidatePairEvent}}</td>
-          <td>
-            The [= ICE agent =] has picked a candidate pair to remove, and unless the operation is canceled by invoking the <code>preventDefault()</code> method on the event, it will be removed.
-          </td>
-        </tr>
-        <tr>
-          <th scope=row><dfn data-dfn-for="RTCIceTransport" data-dfn-type=event>icecandidatepairnominate</dfn></th>
-          <td>{{RTCIceCandidatePairEvent}}</td>
-          <td>
-            The [= ICE agent =] has picked a valid candidate pair to {{nominate}}, and unless the operation is canceled by
-            invoking the <code>preventDefault()</code> method on the event, it will be {{nominated}}.
-          </td>
-        </tr>
-      </tbody>
-    </table>
+  <section id="encoded-source-for-rtc-rtp-sender">
+    <h2>Encoded frame source for RTCRtpSender</h2>
+    <section id="rtc-rtp-encoded-source">
+      <h3>{{RTCRtpSenderEncodedSource}} interface</h3>
+      <p>
+        The <dfn>RTCRtpSenderEncodedSource</dfn>
+        interface allows applications to inject encoded frames into an
+        {{RTCRtpSender}}. This is intended to support use cases
+        where an application already has access to the encoded frames it wants
+        to send. An example is forwarding encoded frames coming from one or more
+        peer connections to another peer connection. In this case, the
+        application can use an encoded transform on the RTCRtpReceivers of the
+        input peer connections to get the encoded frames and inject them on the
+        RTCRtpSender of the output peer connection without having to decode and
+        reencode the frames.
+      </p>
+      <pre class="idl">
+        [Exposed=DedicatedWorker]
+        interface RTCRtpSenderEncodedSource {
+          constructor(DOMString kind);
+          readonly attribute RTCRtpSenderEncodedSourceHandle handle;
+          undefined enqueue((RTCEncodedVideoFrame or RTCEncodedAudioFrame) encodedFrame);
+          undefined stop();
+        };
+      </pre>
+      <h4>Constructor</h4>
+        <p>
+          When the {{RTCRtpSenderEncodedSource}} <dfn data-dfn-for="RTCRtpSenderEncodedSource">constructor</dfn>
+          is invoked with a |kind| argument, the user agent MUST run the following steps:
+          <ol>
+            <li>If |kind| is neither the string `"audio"` nor the string `"video"`, throw a {{TypeError}}.</li>
+            <li>Let |source| be the newly created {{RTCRtpSenderEncodedSource}} object</li>
+            <li>Let |source| have an <dfn data-dfn-for="RTCRtpSenderEncodedSource">[[\IsStopped]]</dfn>
+              internal slot, initialized to false.</li>
+            <li>Let |source| have a <dfn data-dfn-for="RTCRtpSenderEncodedSource">[[\Handle]]</dfn>
+              internal slot</li>
+            <li>[=Create an RTCRtpSenderEncodedSourceHandle=], given |source| as argument and assign it to
+              |source|.{{RTCRtpSenderEncodedSource/[[Handle]]}}</li>
+            <li>Let |source| have a <dfn data-dfn-for="RTCRtpSenderEncodedSource">[[\Kind]]</dfn>
+              internal slot, initialized to |kind|.</li>
+            <li>Let |source| have a <dfn data-dfn-for="RTCRtpSenderEncodedSource">[[\Sender]]</dfn>
+              internal slot, initialized to null.</li>
+          </ol>
+        </p>
+      <h4>Attributes</h4>
+      <dl data-link-for="RTCRtpSenderEncodedSource" data-dfn-for="RTCRtpSenderEncodedSource"
+      class="attributes">
+        <dt>
+          <dfn data-idl="" id="dom-rtpsenderencodedsource-handle">handle</dfn> of type
+          <span class="idlAttrType">{{RTCRtpSenderEncodedSourceHandle}}</span>, readonly
+        </dt>
+        <dd>
+          <p>
+            This attribute is the [=handle associated with=] this {{RTCRtpSenderEncodedSource}}.
+          </p>
+          <p>
+            On getting, if {{RTCRtpSenderEncodedSource/[[Handle]]}}.{{RTCRtpSenderEncodedSourceHandle/[[IsDetached]]}}
+            is `true`, the attribute MUST return `null`. Otherwise, it MUST
+            return the value of the {{RTCRtpSenderEncodedSource/[[Handle]]}} slot.
+          </p>
+        </dd>
+      </dl>
+      <h4>Methods</h4>
+      <dl data-link-for="RTCRtpSenderEncodedSource" data-dfn-for="RTCRtpSenderEncodedSource" class="methods">
+        <dt>
+          <dfn>stop</dfn>
+        </dt>
+        <dd>
+          <p>
+            The User Agent MUST run the following steps:
+            <ol>
+              <li>Let |source| be the object on which the method is invoked.</li>
+              <li>If |source|.{{RTCRtpSenderEncodedSource/[[IsStopped]]}} is true, abort these steps.
+              <li>Set |source|.{{RTCRtpSenderEncodedSource/[[IsStopped]]}} to true.
+            </ol>
+          </p>
+        </dd>
+        <dt>
+          <dfn>enqueue</dfn>
+        </dt>
+        <dd>
+          <p>
+            The User Agent MUST run the following steps:
+            <ol>
+              <li>Let |source| be the object on which the method is invoked.</li>
+              <li>Let |encodedFrame| be the argument given to this method</li>
+              <li>If |source|.{{RTCRtpSenderEncodedSource/[[IsStopped]]}} is true,
+                throw an {{InvalidStateError}} {{DOMException}}, and abort these steps.</li>
+              <li>If |source|.{{RTCRtpSenderEncodedSource/[[Kind]]}} is `"video"`
+                and |encodedFrame| is not an {{RTCEncodedVideoFrame}}, throw an
+                {{InvalidAccessError}} {{DOMException}}, and abort these steps.</li>
+              <li>If |source|.{{RTCRtpSenderEncodedSource/[[Kind]]}} is `"audio"`
+                and |encodedFrame| is not an {{RTCEncodedAudioFrame}}, throw an
+                {{InvalidAccessError}} {{DOMException}}, and abort these steps.</li>
+              <li>Let |data| be |encodedFrame|.`[[data]]`</li>
+              <li>Let |handle| be the [=handle associated with=] |source|.
+                |handle| and |source| might exist in different realms.</li>
+              <li>If |handle|.{{RTCRtpSenderEncodedSourceHandle/[[Sender]]}} is `null`, throw an
+                {{InvalidStateError}} {{DOMException}}, and abort these steps.</li>
+              <li>Let |serializedFrame| be [=StructuredSerializeWithTransfer=](|encodedFrame|,|data|).</li>
+              <li>Let |frameCopy| be [=StructuredDeserialize=](|serializedFrame|, |handle|’s [=relevant realm=]).</li>
+              <li>Enqueue |frameCopy| to |handle|.{{RTCRtpSenderEncodedSourceHandle/[[Sender]]}}'s
+                packetizer, to be processed [=in parallel=].</li>
+            </ol>
+          </p>
+        </dd>
+      </dl>
+      </section>
+      <section id="rtc-rtp-encoded-source-handle">d
+      <h3>RTCRtpSenderEncodedSourceHandle interface</h3>
+      Interface that acts as an opaque cross-realm reference to an {{RTCRtpSenderEncodedSource}}.
+      It is transferable to the {{Window}} context and can be assigned to an {{RTCRtpSender}}
+      using {{RTCRtpSender/replaceTrack}}. An {{RTCRtpSenderEncodedSource}} always
+      stays associated to its {{RTCRtpSenderEncodedSourceHandle}} regardless of the
+      {{RTCRtpSenderEncodedSourceHandle}}'s realm, similar to the way a {{MediaStreamTrack}}
+      source maintains references to the tracks it backs. The main difference is that an
+      {{RTCRtpSenderEncodedSource}} has exactly one associated handle.
+      <pre class="idl">
+        [Exposed=(Window,DedicatedWorker), Transferable]
+        interface RTCRtpSenderEncodedSourceHandle {};
+      </pre>
+      To <dfn class="abstract-op">create an RTCRtpSenderEncodedSourceHandle</dfn> object,
+      given an {{RTCRtpSenderEncodedSource}} |source|:
+      <ol>
+        <li>Let |handle| be a new {{RTCRtpSenderEncodedSourceHandle}} object.</li>
+        <li>Let |handle| have a <dfn data-dfn-for="RTCRtpSenderEncodedSourceHandle">[[\Sender]]</dfn>
+            internal slot, initialized to `null`.</li>
+        <li>Let |handle| have a <dfn data-dfn-for="RTCRtpSenderEncodedSourceHandle">[[\Kind]]</dfn>
+          internal slot, initialized to |source|.{{RTCRtpSenderEncodedSource/[[Kind]]}}.</li>
+          <li>Let |handle| have an <dfn data-dfn-for="RTCRtpSenderEncodedSourceHandle">[[\IsDetached]]</dfn>
+            internal slot, initialized to `false`.</li>
+        <li>Let |handle| have an <dfn data-dfn-for="RTCRtpSenderEncodedSourceHandle">[[\Id]]</dfn>
+            internal slot, initialized to a unique string.</li>
+        <li>Return |handle|.</li>
+      </ol>
+      {{RTCRtpSenderEncodedSourceHandle}} objects are <a data-cite="!HTML/#transferable-objects">transferable</a>.
+      Their <a data-cite="!HTML/#transfer-steps">transfer steps</a>, given |value|,
+      and |dataHolder|, are:
+      <ol>
+      <li>If |value|.{{RTCRtpSenderEncodedSourceHandle/[[IsDetached]]}} is `true`,
+        throw a {{DataCloneError}} {{DOMException}}.</li>
+        <li>Set |dataHolder|.`[[Kind]]` to |value|.{{RTCRtpSenderEncodedSourceHandle/[[Kind]]}}</li>
+        <li>Set |dataHolder|.`[[Id]]` to |value|.{{RTCRtpSenderEncodedSourceHandle/[[Id]]}}</li>
+      <li>Set |value|.{{RTCRtpSenderEncodedSourceHandle/[[IsDetached]]}} to `true`.</li>
+      </ol>
+      The {{RTCRtpSenderEncodedSourceHandle}} <a data-cite="!HTML/#transfer-receiving-steps">transfer-receiving steps</a>,
+      given |dataHolder| and |handle|, are:
+      <ol>
+        <li>Set |handle|.{{RTCRtpSenderEncodedSourceHandle/[[Kind]]}} to |dataHolder|.`[[Kind]]`</li>
+        <li>Set |handle|.{{RTCRtpSenderEncodedSourceHandle/[[Id]]}} to |dataHolder|.`[[Id]]`</li>
+        <li>Set |handle|.{{RTCRtpSenderEncodedSourceHandle/[[Sender]]}} to `null`</li>
+      </ol>
+      We define the <dfn class="abstract-op">handle associated with</dfn> an
+      {{RTCRtpSenderEncodedSource}} |source| to be an
+      {{RTCRtpSenderEncodedSourceHandle}} object |handle| for which the following holds:
+      <ol>
+        <li>|handle|.{{RTCRtpSenderEncodedSourceHandle/[[Id]]}} equals
+          |source|.{{RTCRtpSenderEncodedSource/[[Handle]]}}.{{RTCRtpSenderEncodedSourceHandle/[[Id]]}}</li>
+        <li>|handle|.{{RTCRtpSenderEncodedSourceHandle/[[IsDetached]]}} is `false`</li>
+      </ol>
+      Given that {{RTCRtpSenderEncodedSourceHandle}} is
+      <a data-cite="!HTML/#transferable-objects">transferable</a>, but not
+      <a data-cite="!HTML/#serializable-objects">serializable</a>, there is at
+      most one [=handle  associated with=] a {{RTCRtpSenderEncodedSource}} and
+      it is possible that they exist in different realms. The user agent can use
+      whatever mechanism works best to keep track of the potentially cross-realm
+      association between an encoded source and its associated handle, similarly
+      to the way a {{MediaStreamTrack}} and its corresponding
+      <a data-cite="mediacapture-streams#dfn-source">source</a> are connected.
+      </section>
+      <section id="rtc-rtp-sender-extensions-encoded-source">
+      <h3>RTCRtpSender interface extensions</h3>
+      <pre class="idl" data-link-for="RTCRtpSender" data-dfn-for="RTCRtpSender">
+        partial interface RTCRtpSender {
+          undefined replaceTrack(RTCRtpSenderEncodedSourceHandle withSourceHandle);
+          readonly attribute RTCRtpSenderEncodedSourceHandle encodedSourceHandle;
+      };
+      </pre>
+      <h4>Attributes</h4>
+      <dl data-link-for="RTCRtpSender" data-dfn-for="RTCRtpSender"
+      class="attributes">
+        <dt>
+          <dfn data-idl="" id="dom-rtpsenderenextension-handle">encodedSourceHandle</dfn> of type
+          <span class="idlAttrType">{{RTCRtpSenderEncodedSourceHandle}}</span>, readonly
+        </dt>
+        <dd>
+            This attribute is the handle for the {{RTCRtpSenderEncodedSource}} associated with this
+            {{RTCRtpSender}} object. If the encoded source is not `null` and is stopped,
+            the {{RTCRtpSender}} SHOULD send one black (video) frame per second and MUST NOT
+            send (audio). If {{RTCRtpSender/encodedSourceHandle}} is `null`
+            and {{RTCRtpSender/track}} is `null` then the {{RTCRtpSender}} does not send.
+            On getting, the attribute MUST return the value of the
+            {{RTCRtpSender/[[SenderEncodedSourceHandle]]}} slot.
+        </dd>
+      </dl>
+      <h4>Methods</h4>
+      <dl data-link-for="RTCRtpSender" data-dfn-for="RTCRtpSender" class="methods">
+        <dt>
+          <dfn>replaceTrack</dfn>
+        </dt>
+        <dd>
+          <p>
+            Attempts to replace the {{RTCRtpSender}}'s current {{RTCRtpSender/track}} or
+            {{RTCRtpSender/encodedSourceHandle}} with
+            another encoded source without renegotiation. When this method is invoked,
+            the user agent MUST run the following steps:
+            <ol>
+              <li>Let |sender| be the {{RTCRtpSender}} object on which the method is invoked.</li>
+              <li>Let |transceiver| be the {{RTCRtpTransceiver}} object associated with |sender|.</li>
+              <li>Let |connection| be the {{RTCPeerConnection}} object associated with |sender|.</li>
+              <li>Let |withSourceHandle| be the argument to this method.</li>
+              <li>If |withSourceHandle| is non-null and |withSourceHandle|.{{RTCRtpSenderEncodedSourceHandle/[[Kind]]}}
+                 differs from the transceiver kind of transceiver, return a {{Promise}} rejected with a
+                 newly created {{TypeError}}.</li>
+              <li>Return the result of chaining the following steps to |connection|'s [=operations chain=]:
+                <ol>
+                  <li>If |transceiver|.<a data-cite="webrtc#dfn-stopping">`[[Stopping]]`</a>
+                     is `true`, return a {{Promise}} rejected with a newly created
+                     {{InvalidStateError}} {{DOMException}}.</li>
+                  <li>Let |p| be a new {{Promise}}.</li>
+                  <li>Let |sending| be `true` if |transceiver|.<a data-cite="webrtc#dfn-currentdirection">`[[CurrentDirection]]`</a>
+                     is "sendrecv" or "sendonly", and `false` otherwise.</li>
+                  <li>Run the following steps [=in parallel=]:
+                    <ol>
+                      <li>If |sending| is `true`, and |withSourceHandle| is `null`, have the sender stop sending.</li>
+                      <li>Queue a task that runs the following steps:
+                        <ol>
+                          <li>If |connection|.{{RTCPeerConnection/[[IsClosed]]}} is `true`, abort these steps.</li>
+                          <li>Set |sender|.<a data-cite="webrtc#dfn-sendertrack">`[[SenderTrack]]`</a> to `null`.</li>
+                          <li>Set |sender|.{{RTCRtpSender/[[SenderEncodedSourceHandle]]}} to |withSourceHandle|.</li>
+                          <li>set |withSourceHandle|.{{RTCRtpSenderEncodedSourceHandle/[[Sender]]}} to |sender|.</li>
+                          <li>Resolve |p| with `undefined`.</li>
+                        </ol>
+                      </li>
+                      <li>Return |p|.</li>
+                    </ol>
+                  </li>
+                </ol>
+              </li>
+            </ol>
+          </p>
+        </dd>
+      </dl>
+      </section>
+      <section id="modifications-encoded-source">
+      <h3>Modifications to existing procedures</h3>
+      <ul>
+        <li>Make the following modification to the [=Create an RTCRtpSender=] algorithm:
+          <ul><li>After step 2, insert the following step:
+            <ul><li>Let sender have a <dfn data-dfn-for="RTCRtpSender">[[\SenderEncodedSourceHandle]]</dfn>
+              internal slot initialized to `null`.</li></ul>
+          </li></ul>
+        </li>
+        <li>Make the following modification to {{RTCPeerConnection}}.{{RTCPeerConnection/addTrack()}}:
+          <ul><li>After step 8.1, insert the following step:
+            <ul>
+              <li>Set |sender|.{{RTCRtpSender/[[SenderEncodedSourceHandle]]}} to `null`</li>
+            </ul>
+          </li></ul>
+        </li>
+        <li>Make the following modifications to {{RTCRtpSender}}.<a class=fixme data-cite="WEBRTC#dom-rtcrtpsender-removetrack">`removeTrack()`</a>:
+          <ol>
+            <li>
+              Replace step 9 with the following step:
+              <ul><li>If |sender|.<a data-cite="webrtc#dfn-sendertrack">`[[SenderTrack]]`</a> is `null` and
+                |sender|.{{RTCRtpSender/[[SenderEncodedSourceHandle]]}} is `null`,
+                abort these steps.</li></ul>
+            </li>
+            <li>
+              After step 10, insert the following steps:
+              <ol>
+                <li>Set |sender|.{{RTCRtpSender/[[SenderEncodedSourceHandle]]}}.{{RTCRtpSenderEncodedSourceHandle/[[Sender]]}} to `null`</li>
+                <li>Set |sender|.{{RTCRtpSender/[[SenderEncodedSourceHandle]]}} to `null`.</li>
+              </ol>
+            </li>
+          </ol>
+        </li>
+        <li>
+          Make the following modifications to {{RTCRtpSender}}.{{RTCRtpSender/setParameters()}}:
+          <ul>
+            Replace step 8 with the following step:
+            <ul>
+              <li>In parallel, configure the media stack to use parameters to transmit
+                |sender|.<a data-cite="webrtc#dfn-sendertrack">`[[SenderTrack]]`</a> or |sender|.{{RTCRtpSender/[[SenderEncodedSourceHandle]]}}.</li>
+            </ul>
+          </ul>
+        </li>
+        <li>
+          Make the following modifications to {{RTCRtpSender}}.<a class=fixme data-cite="WEBRTC#dom-rtcrtpsender-replacetrack">`replaceTrack()`</a>:
+          <ul>
+            After step 6.4.4.2, insert the following steps:
+            <ol>
+              <li>Set |sender|.{{RTCRtpSender/[[SenderEncodedSourceHandle]]}}.{{RTCRtpSenderEncodedSourceHandle/[[Sender]]}} to `null`.</li>
+              <li>Set |sender|.{{RTCRtpSender/[[SenderEncodedSourceHandle]]}} to `null`.</li>
+            </ol>
+          </ul>
+        </li>
+      </ul>
+    </section>
   </section>
   <section class="informative" id="security-considerations">
     <h2>

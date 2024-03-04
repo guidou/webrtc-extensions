@@ -5,7 +5,7 @@ var respecConfig = {
       branch: "main"
     },
   latestVersion: null,
-    "xref": ["html", "webidl", "webrtc", "hr-time", "mediacapture-streams", "webrtc-stats", "infra", "dom"],
+    "xref": ["html", "webidl", "webrtc", "hr-time", "mediacapture-streams", "webrtc-stats", "infra", "dom", "webrtc-encoded-transform"],
     "specStatus": "ED",
     editors:  [
       //              { name: "Your Name", url: "http://example.org/",
