@@ -1861,6 +1861,44 @@ partial interface RTCRtpTransceiver {
       </ul>
     </section>
   </section>
+  <section class="informative">
+    <h2>Event summary</h2>
+    <p>
+      The following events fire on {{RTCIceTransport}} objects:</p>
+    <table class="simple">
+      <thead>
+        <tr>
+          <th>Event name</th>
+          <th>Interface</th>
+          <th>Fired when...</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <th scope=row><dfn data-dfn-for="RTCIceTransport" data-dfn-type=event>icecandidatepairadd</dfn></th>
+          <td>{{RTCIceCandidatePairEvent}}</td>
+          <td>
+            The [= ICE agent =] has formed a candidate pair and is making it available to the script.
+          </td>
+        </tr>
+        <tr>
+          <th scope=row><dfn data-dfn-for="RTCIceTransport" data-dfn-type=event>icecandidatepairremove</dfn></th>
+          <td>{{RTCIceCandidatePairEvent}}</td>
+          <td>
+            The [= ICE agent =] has picked a candidate pair to remove, and unless the operation is canceled by invoking the <code>preventDefault()</code> method on the event, it will be removed.
+          </td>
+        </tr>
+        <tr>
+          <th scope=row><dfn data-dfn-for="RTCIceTransport" data-dfn-type=event>icecandidatepairnominate</dfn></th>
+          <td>{{RTCIceCandidatePairEvent}}</td>
+          <td>
+            The [= ICE agent =] has picked a valid candidate pair to {{nominate}}, and unless the operation is canceled by
+            invoking the <code>preventDefault()</code> method on the event, it will be {{nominated}}.
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
   <section class="informative" id="security-considerations">
     <h2>
       Security Considerations
