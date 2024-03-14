@@ -1669,15 +1669,22 @@ partial interface RTCRtpTransceiver {
         </dd>
       </dl>
       </section>
-      <section id="rtc-rtp-encoded-source-handle">d
+      <section id="rtc-rtp-encoded-source-handle">
       <h3>RTCRtpSenderEncodedSourceHandle interface</h3>
-      Interface that acts as an opaque cross-realm reference to an {{RTCRtpSenderEncodedSource}}.
+      <p>An interface that acts as an opaque cross-realm reference to an {{RTCRtpSenderEncodedSource}}.
       It is transferable to the {{Window}} context and can be assigned to an {{RTCRtpSender}}
       using {{RTCRtpSender/replaceTrack}}. An {{RTCRtpSenderEncodedSource}} always
       stays associated to its {{RTCRtpSenderEncodedSourceHandle}} regardless of the
       {{RTCRtpSenderEncodedSourceHandle}}'s realm, similar to the way a {{MediaStreamTrack}}
       source maintains references to the tracks it backs. The main difference is that an
-      {{RTCRtpSenderEncodedSource}} has exactly one associated handle.
+      {{RTCRtpSenderEncodedSource}} has exactly one associated handle.</p>
+
+      <p>The advantage of separating the {{RTCRtpSenderEncodedSource}} from the
+      {{RTCRtpSenderEncodedSourceHandle}} is that the realm that created the
+      {{RTCRtpSenderEncodedSource}} can keep the {{RTCRtpSenderEncodedSource}}
+      and send frames to it, while the realm that owns the RTCRtpSender can take
+      care of the tasks related to managing the connection.</p>
+
       <pre class="idl">
         [Exposed=(Window,DedicatedWorker), Transferable]
         interface RTCRtpSenderEncodedSourceHandle {};
@@ -1724,7 +1731,7 @@ partial interface RTCRtpTransceiver {
       Given that {{RTCRtpSenderEncodedSourceHandle}} is
       <a data-cite="!HTML/#transferable-objects">transferable</a>, but not
       <a data-cite="!HTML/#serializable-objects">serializable</a>, there is at
-      most one [=handle  associated with=] a {{RTCRtpSenderEncodedSource}} and
+      most one [=handle  associated with=] an {{RTCRtpSenderEncodedSource}} and
       it is possible that they exist in different realms. The user agent can use
       whatever mechanism works best to keep track of the potentially cross-realm
       association between an encoded source and its associated handle, similarly
