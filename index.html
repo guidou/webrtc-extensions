@@ -1848,21 +1848,21 @@ partial interface RTCRtpTransceiver {
         <li>
           Make the following modifications to {{RTCRtpSender}}.{{RTCRtpSender/setParameters()}}:
           <ul>
-            Replace step 8 with the following step:
+            <li>Replace step 8 with the following step:
             <ul>
               <li>In parallel, configure the media stack to use parameters to transmit
                 |sender|.<a data-cite="webrtc#dfn-sendertrack">`[[SenderTrack]]`</a> or |sender|.{{RTCRtpSender/[[SenderEncodedSourceHandle]]}}.</li>
-            </ul>
+            </ul></li>
           </ul>
         </li>
         <li>
           Make the following modifications to {{RTCRtpSender}}.<a class=fixme data-cite="WEBRTC#dom-rtcrtpsender-replacetrack">`replaceTrack()`</a>:
           <ul>
-            After step 6.4.4.2, insert the following steps:
+            <li>After step 6.4.4.2, insert the following steps:
             <ol>
               <li>Set |sender|.{{RTCRtpSender/[[SenderEncodedSourceHandle]]}}.{{RTCRtpSenderEncodedSourceHandle/[[Sender]]}} to `null`.</li>
               <li>Set |sender|.{{RTCRtpSender/[[SenderEncodedSourceHandle]]}} to `null`.</li>
-            </ol>
+            </ol></li>
           </ul>
         </li>
       </ul>
