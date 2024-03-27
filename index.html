@@ -1299,7 +1299,7 @@ dictionary RTCEncodingOptions {
      <h3>
        Transferable Data Channels
      </h3>
-     <p>This section extends {{RTCDataChannel}} by making it <a data-cite="!HTML/#transferable-objects">transferable</a>.</p>
+     <p>This section extends {{RTCDataChannel}} by making it [=transferable object|transferable=].</p>
      <p>This allows sending and receiving messages outside the context the connection was created, for instance in workers or third-party iframes.</p>
       <div>
       <p>The WebIDL changes are the following:
@@ -1327,7 +1327,7 @@ dictionary RTCEncodingOptions {
       </ol>
     </div>
     <div>
-      <p>The {{RTCDataChannel}} <a data-cite="!HTML/#transfer-steps">transfer steps</a>, given <var>value</var> and <var>dataHolder</var>, are:</p>
+      <p>The {{RTCDataChannel}} [=transfer steps=], given <var>value</var> and <var>dataHolder</var>, are:</p>
       <ol>
         <li><p>If <var>value</var>.`[[IsTransferable]]` is <code>false</code>, throw a "DataCloneError" DOMException.</p></li>
         <li><p>Set <var>dataHolder</var>.`[[ReadyState]]` to <var>value</var>.<a data-cite="WEBRTC#dfn-readystate">`[[ReadyState]]`</a>.</p></li>
@@ -1589,8 +1589,8 @@ partial interface RTCRtpTransceiver {
       <h4>Constructor</h4>
         <p>
           When the {{RTCRtpSenderEncodedSource}} <dfn data-dfn-for="RTCRtpSenderEncodedSource">constructor</dfn>
-          is invoked with a |kind| argument, the user agent MUST run the following steps:
-          <ol>
+          is invoked with a |kind| argument, the user agent MUST run the following steps:</p>
+          <ol class=algorithm>
             <li>If |kind| is neither the string `"audio"` nor the string `"video"`, throw a {{TypeError}}.</li>
             <li>Let |source| be the newly created {{RTCRtpSenderEncodedSource}} object</li>
             <li>Let |source| have an <dfn data-dfn-for="RTCRtpSenderEncodedSource">[[\IsStopped]]</dfn>
@@ -1604,7 +1604,6 @@ partial interface RTCRtpTransceiver {
             <li>Let |source| have a <dfn data-dfn-for="RTCRtpSenderEncodedSource">[[\Sender]]</dfn>
               internal slot, initialized to null.</li>
           </ol>
-        </p>
       <h4>Attributes</h4>
       <dl data-link-for="RTCRtpSenderEncodedSource" data-dfn-for="RTCRtpSenderEncodedSource"
       class="attributes">
@@ -1630,21 +1629,20 @@ partial interface RTCRtpTransceiver {
         </dt>
         <dd>
           <p>
-            The User Agent MUST run the following steps:
-            <ol>
+            The User Agent MUST run the following steps:</p>
+            <ol class=algorithm>
               <li>Let |source| be the object on which the method is invoked.</li>
               <li>If |source|.{{RTCRtpSenderEncodedSource/[[IsStopped]]}} is true, abort these steps.
               <li>Set |source|.{{RTCRtpSenderEncodedSource/[[IsStopped]]}} to true.
             </ol>
-          </p>
         </dd>
         <dt>
           <dfn>enqueue</dfn>
         </dt>
         <dd>
           <p>
-            The User Agent MUST run the following steps:
-            <ol>
+            The User Agent MUST run the following steps:</p>
+            <ol class=algorithm>
               <li>Let |source| be the object on which the method is invoked.</li>
               <li>Let |encodedFrame| be the argument given to this method</li>
               <li>If |source|.{{RTCRtpSenderEncodedSource/[[IsStopped]]}} is true,
@@ -1665,7 +1663,6 @@ partial interface RTCRtpTransceiver {
               <li>Enqueue |frameCopy| to |handle|.{{RTCRtpSenderEncodedSourceHandle/[[Sender]]}}'s
                 packetizer, to be processed [=in parallel=].</li>
             </ol>
-          </p>
         </dd>
       </dl>
       </section>
@@ -1689,9 +1686,9 @@ partial interface RTCRtpTransceiver {
         [Exposed=(Window,DedicatedWorker), Transferable]
         interface RTCRtpSenderEncodedSourceHandle {};
       </pre>
-      To <dfn class="abstract-op">create an RTCRtpSenderEncodedSourceHandle</dfn> object,
-      given an {{RTCRtpSenderEncodedSource}} |source|:
-      <ol>
+      <p>To <dfn class="abstract-op">create an RTCRtpSenderEncodedSourceHandle</dfn> object,
+      given an {{RTCRtpSenderEncodedSource}} |source|:</p>
+      <ol class=algorithm>
         <li>Let |handle| be a new {{RTCRtpSenderEncodedSourceHandle}} object.</li>
         <li>Let |handle| have a <dfn data-dfn-for="RTCRtpSenderEncodedSourceHandle">[[\Sender]]</dfn>
             internal slot, initialized to `null`.</li>
@@ -1703,40 +1700,40 @@ partial interface RTCRtpTransceiver {
             internal slot, initialized to a unique string.</li>
         <li>Return |handle|.</li>
       </ol>
-      {{RTCRtpSenderEncodedSourceHandle}} objects are <a data-cite="!HTML/#transferable-objects">transferable</a>.
-      Their <a data-cite="!HTML/#transfer-steps">transfer steps</a>, given |value|,
-      and |dataHolder|, are:
-      <ol>
+      <p>{{RTCRtpSenderEncodedSourceHandle}} objects are [=transferable object|transferable=].
+      Their [=transfer steps=], given |value|,
+      and |dataHolder|, are:</p>
+      <ol class=algorithm>
       <li>If |value|.{{RTCRtpSenderEncodedSourceHandle/[[IsDetached]]}} is `true`,
         throw a {{DataCloneError}} {{DOMException}}.</li>
         <li>Set |dataHolder|.`[[Kind]]` to |value|.{{RTCRtpSenderEncodedSourceHandle/[[Kind]]}}</li>
         <li>Set |dataHolder|.`[[Id]]` to |value|.{{RTCRtpSenderEncodedSourceHandle/[[Id]]}}</li>
       <li>Set |value|.{{RTCRtpSenderEncodedSourceHandle/[[IsDetached]]}} to `true`.</li>
       </ol>
-      The {{RTCRtpSenderEncodedSourceHandle}} <a data-cite="!HTML/#transfer-receiving-steps">transfer-receiving steps</a>,
-      given |dataHolder| and |handle|, are:
-      <ol>
+      <p>The {{RTCRtpSenderEncodedSourceHandle}} <a data-cite="!HTML/#transfer-receiving-steps">transfer-receiving steps</a>,
+      given |dataHolder| and |handle|, are:</p>
+      <ol class=algorithm>
         <li>Set |handle|.{{RTCRtpSenderEncodedSourceHandle/[[Kind]]}} to |dataHolder|.`[[Kind]]`</li>
         <li>Set |handle|.{{RTCRtpSenderEncodedSourceHandle/[[Id]]}} to |dataHolder|.`[[Id]]`</li>
         <li>Set |handle|.{{RTCRtpSenderEncodedSourceHandle/[[Sender]]}} to `null`</li>
       </ol>
-      We define the <dfn class="abstract-op">handle associated with</dfn> an
+      <p>We define the <dfn>handle associated with</dfn> an
       {{RTCRtpSenderEncodedSource}} |source| to be an
-      {{RTCRtpSenderEncodedSourceHandle}} object |handle| for which the following holds:
-      <ol>
+      {{RTCRtpSenderEncodedSourceHandle}} object |handle| for which the following holds:</p>
+      <ol class=algorithm>
         <li>|handle|.{{RTCRtpSenderEncodedSourceHandle/[[Id]]}} equals
           |source|.{{RTCRtpSenderEncodedSource/[[Handle]]}}.{{RTCRtpSenderEncodedSourceHandle/[[Id]]}}</li>
         <li>|handle|.{{RTCRtpSenderEncodedSourceHandle/[[IsDetached]]}} is `false`</li>
       </ol>
-      Given that {{RTCRtpSenderEncodedSourceHandle}} is
-      <a data-cite="!HTML/#transferable-objects">transferable</a>, but not
-      <a data-cite="!HTML/#serializable-objects">serializable</a>, there is at
+      <p>Given that {{RTCRtpSenderEncodedSourceHandle}} is
+      [=transferable object|transferable=], but not
+      [=serializable object|serializable=], there is at
       most one [=handle  associated with=] an {{RTCRtpSenderEncodedSource}} and
       it is possible that they exist in different realms. The user agent can use
       whatever mechanism works best to keep track of the potentially cross-realm
       association between an encoded source and its associated handle, similarly
       to the way a {{MediaStreamTrack}} and its corresponding
-      <a data-cite="mediacapture-streams#dfn-source">source</a> are connected.
+      <a data-cite="mediacapture-streams#dfn-source">source</a> are connected.</p>
       </section>
       <section id="rtc-rtp-sender-extensions-encoded-source">
       <h3>RTCRtpSender interface extensions</h3>
