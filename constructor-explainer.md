@@ -40,7 +40,7 @@ onrtctransform = async ({transformer: {readable, writable, options}}) => {
   await readable.pipeThrough(new TransformStream({transform})).pipeTo(writable);
   function transform(frame, controller) {
     // getCustomMetadata is application-defined (e.g., adjust timestamps)
-    const newFrame = new RTCRtpEncodedVideoFrame(frame, getUnifiedMetadata(frame));
+    const newFrame = new RTCRtpEncodedVideoFrame(frame, {metadata: getUnifiedMetadata(frame)});
     controller.enqueue(newFrame);
   }
 }
