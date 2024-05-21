@@ -1580,20 +1580,30 @@ partial interface RTCRtpTransceiver {
       <pre class="idl">
         [Exposed=DedicatedWorker]
         interface RTCRtpSenderEncodedSource {
-          constructor(DOMString kind);
-          readonly attribute RTCRtpSenderEncodedSourceHandle handle;
-          undefined enqueue((RTCEncodedVideoFrame or RTCEncodedAudioFrame) encodedFrame);
-          undefined stop();
+          constructor(Worker worker, DOMString kind, optional any options, optional sequence&lt;object&gt; transfer);
         };
       </pre>
       <h4>Constructor</h4>
         <p>
-          When the {{RTCRtpSenderEncodedSource}} <dfn data-dfn-for="RTCRtpSenderEncodedSource">constructor</dfn>
-          is invoked with a |kind| argument, the user agent MUST run the following steps:</p>
+          The <dfn constructor for="RTCRtpSenderEncodedSource">
+          <code>RTCRtpSenderEncodedSource(|worker|, |kind|, |options|, |transfer|)</code></dfn>
+          constructor steps are:</p>
           <ol class=algorithm>
-            <li>If |kind| is neither the string `"audio"` nor the string `"video"`, throw a {{TypeError}}.</li>
             <li>Let |source| be the newly created {{RTCRtpSenderEncodedSource}} object</li>
-            <li>Let |source| have an <dfn data-dfn-for="RTCRtpSenderEncodedSource">[[\IsStopped]]</dfn>
+            <li>If |kind| is neither the string `"audio"` nor the string `"video"`, throw a {{TypeError}}.</li>
+            <li>Let |serializedKind| be [=StructuredSerializeWithTransfer=](|kind|,|transfer|) </li>
+            <li>Let |serializedOptions| be [=StructuredSerializeWithTransfer=](|options|,|transfer|) </li>
+            <li>[=Queue a task=] on the DOM manipulation [=task source=] |worker\'s global scope to run the following steps:</li>
+            <ol class="algorithm">
+              <li>Let |handleKind| be [=StructuredDeserialize=](serializedKind, the current Realm)</li>
+              <li>Let |handleOptions| be [=StructuredDeserialize=](serializedOptions, the current Realm)</li>
+              <li>Let |handle| be a new {{RTCRtpSenderEncodedSourceHandle}}.</li>
+              <li>Let |handle| have a <dfn data-dfn-for="RTCRtpSenderEncodedSourceHandle">[[\Kind]]</dfn>
+                  internal slot, initialized to |handleKind|`</li>
+              <li>Let |handle| have an <dfn data-dfn-for="RTCRtpSenderEncodedSourceHandle">[[\Options]]</dfn>
+                internal slot, initialized to |handleOptions|`</li>
+            </ol>
+            <!-- <li>Let |source| have an <dfn data-dfn-for="RTCRtpSenderEncodedSource">[[\IsStopped]]</dfn>
               internal slot, initialized to false.</li>
             <li>Let |source| have a <dfn data-dfn-for="RTCRtpSenderEncodedSource">[[\Handle]]</dfn>
               internal slot</li>
@@ -1602,8 +1612,12 @@ partial interface RTCRtpTransceiver {
             <li>Let |source| have a <dfn data-dfn-for="RTCRtpSenderEncodedSource">[[\Kind]]</dfn>
               internal slot, initialized to |kind|.</li>
             <li>Let |source| have a <dfn data-dfn-for="RTCRtpSenderEncodedSource">[[\Sender]]</dfn>
-              internal slot, initialized to null.</li>
+              internal slot, initialized to null.</li> -->
           </ol>
+
+
+
+
       <h4>Attributes</h4>
       <dl data-link-for="RTCRtpSenderEncodedSource" data-dfn-for="RTCRtpSenderEncodedSource"
       class="attributes">
